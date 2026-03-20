@@ -235,3 +235,72 @@ top - used to view the active processes live with their system usage
    52  root    0.0   0.0  sh
    90  root    0.0   0.1  top
 
+
+
+
+
+
+Assignment :- 
+1. Creating and Renaming Files/Directories
+Create a directory named test_dir using mkdir.
+Inside test_dir, create an empty file called example.txt.
+Rename example.txt to renamed_example.txt using mv
+
+
+Ans:- 
+– mkdir test_dir
+– touch test_dir/harsh1.txt
+– mv test_dir/harsh1.txt test_dir/harsh.txt
+– ls
+–  cd test_dir
+–  ls
+
+2. Viewing File Contents
+Use cat to display the contents of /etc/passwd.
+Display only the first 5 lines of /etc/passwd using head.
+Display only the last 5 lines of /etc/passwd using tail.
+Ans:- 
+– cat /etc/passwd
+
+– head -5 /etc/passwd
+– tail -5 /etc/passwd
+
+
+3.Searching for Patterns
+Use grep to find all lines containing the word "root" in /etc/passwd.
+Ans:- 
+ – grep root /etc/passwd
+
+4. Zipping and Unzipping
+Compress the test_dir directory into a file named test_dir.zip using zip.
+Unzip test_dir.zip into a new directory named unzipped_dir.
+Ans:- 
+– zip -r test_dir.zip . -i test_dir/
+– mkdir unzipped_dir
+– unzip test_dir.zip -d unzipped_dir/
+
+
+5. Downloading Files
+Use wget to download a file from a URL (e.g., https://example.com/sample.txt).
+
+Ans:- 
+– wget https://docs.google.com/document/d/1O5rvyUFY7G1_lK6wrogsnDIBGuySIbXl5W3bP3D3OrA/edit?tab=t.0
+
+
+
+6. Changing Permissions
+Create a file named secure.txt and change its permissions to read-only for everyone using chmod.
+
+Ans:-
+–  touch secure.txt
+– chmod 444 secure.txt
+ 
+
+7. Working with Environment Variables
+Use export to set a new environment variable called MY_VAR with the value "Hello, Linux!".
+
+Ans:- 
+– export MY_VAR="Hello, Linux!"
+– echo $MY_VAR
+
+
