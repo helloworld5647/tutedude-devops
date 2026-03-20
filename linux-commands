@@ -1,0 +1,16 @@
+ls - to list all the directories and files 
+pwd - used to print the all current working directory
+cd -  used to change the directory
+mkdir -  used to create a  directories 
+mv -  used to move or rename the directories
+cp - same uses as mv command or used to copy the files
+rm - used to remove or delete the files or directories
+touch - used to  create  a empty /new file
+ln - used to create a symbolic links or shortcuts to other files
+cat - used to show diplay the file content to the terminal
+clear - used the clear the terminal window
+echo - used to print the entered text 
+man - used to access the manual of all linux command
+uname - used to get the os info
+whoami - used to get the current active session username
+tar - used to extract and compress the files
