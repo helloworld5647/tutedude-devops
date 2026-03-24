@@ -1,3 +1,7 @@
+
+note :- you can check the app.py and data.json for the code and data in the repositiory
+
+
 sudo apt install python3 python3-pip python3-venv -y       # first we update the packages with the python3 installation with virtual environment on terminal
 sudo apt install curl -y       # then installing curl for running the api url or make the request to web server through the terminal 
 mkdir ~/flask_api_app     # creating a directory
