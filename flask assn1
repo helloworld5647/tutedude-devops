@@ -1,0 +1,43 @@
+sudo apt install python3 python3-pip python3-venv -y       # first we update the packages with the python3 installation with virtual environment on terminal
+sudo apt install curl -y       # then installing curl for running the api url or make the request to web server through the terminal 
+mkdir ~/flask_api_app     # creating a directory
+cd ~/flask_api_app
+nano data.json       # creating the backend json file 
+Then paste this 
+Data.json
+
+[
+  { "id": 1, "name": "Alice Johnson", "role": "Engineer" },
+  { "id": 2, "name": "Bob Smith",    "role": "Designer" },
+  { "id": 3, "name": "Carol White",  "role": "Manager"  }
+]
+
+
+
+nano app.py    # creating the application file of python
+
+Then paste this file
+app.py
+import json
+import os
+from flask import Flask, jsonify
+app = Flask(__name__)
+# backend data file path
+DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
+@app.route("/api")
+def api_data():
+    """Read data.json and return it as a JSON list."""
+    with open(DATA_FILE, "r") as f:
+        data = json.load(f)
+    return jsonify(data)
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+
+python3 -m venv venv      # then creating a isolated virtual environment
+source venv/bin/activate   # switching into the created virtual environment
+pip install flask     # used to install the flask in the VE
+python3 app.py     # running the app.py  the application file
+curl http://127.0.0.1:5000/api               #sending request to out /api route
+Or    http://127.0.0.1:5000/api on firefox  
