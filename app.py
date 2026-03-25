@@ -6,8 +6,6 @@ from pymongo.errors import ConnectionFailure, OperationFailure
 
 app = Flask(__name__)
 
-# ── MongoDB Atlas URI ──────────────────────────────────────────────────────────
-# Replace with your actual Atlas connection string
 MONGO_URI = os.environ.get(
     "MONGO_URI",
     "mongodb+srv://flaskuser:StrongPassword123@cluster0.feqrdcf.mongodb.net/mydb?retryWrites=true&w=majority"
@@ -17,38 +15,33 @@ def get_db():
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
     return client["mydb"]
 
-# ── Path to data.json ──────────────────────────────────────────────────────────
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
 
-# ── /api — read data.json and return as JSON list ──────────────────────────────
 @app.route("/api")
 def api_data():
     with open(DATA_FILE, "r") as f:
         data = json.load(f)
     return jsonify(data)
 
-# ── / — show the form ──────────────────────────────────────────────────────────
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html", error=None)
 
-# ── /submit — handle form POST ─────────────────────────────────────────────────
 @app.route("/submit", methods=["POST"])
 def submit():
     name    = request.form.get("name", "").strip()
     email   = request.form.get("email", "").strip()
     message = request.form.get("message", "").strip()
 
-    # Basic validation
+    # validator
     if not name or not email or not message:
         return render_template("index.html", error="All fields are required.")
 
-    # ── 1. Save to data.json ───────────────────────────────────────────────────
+    #data saving to backend file data.json
     try:
         with open(DATA_FILE, "r") as f:
             data = json.load(f)
 
-        # Generate next ID automatically
         next_id = max((item.get("id", 0) for item in data), default=0) + 1
 
         new_entry = {
@@ -65,7 +58,7 @@ def submit():
     except Exception as e:
         return render_template("index.html", error=f"Failed to write to data.json: {e}")
 
-    # ── 2. Save to MongoDB Atlas ───────────────────────────────────────────────
+    # saving to mongo db cluster
     try:
         db = get_db()
         db.submissions.insert_one(new_entry.copy())
@@ -80,10 +73,10 @@ def submit():
         return render_template("index.html",
             error=f"Saved to data.json but unexpected MongoDB error: {e}")
 
-    # ── 3. Both succeeded — redirect to success page ───────────────────────────
+    # redirection to success page
     return redirect(url_for("success"))
 
-# ── /success ───────────────────────────────────────────────────────────────────
+# Success page 
 @app.route("/success")
 def success():
     return render_template("success.html")
