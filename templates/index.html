@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submit Data</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 30px;
+      width: 100%;
+      max-width: 480px;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 6px; color: #222; }
+    .subtitle { font-size: 0.88rem; color: #666; margin-bottom: 20px; }
+
+    .data-section {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+    .data-section h3 { font-size: 0.85rem; color: #444; margin-bottom: 10px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th {
+      text-align: left;
+      padding: 6px 8px;
+      background: #eeeeee;
+      border: 1px solid #ddd;
+      color: #333;
+    }
+    td { padding: 6px 8px; border: 1px solid #ddd; color: #444; }
+    tr:nth-child(even) { background: #f5f5f5; }
+
+    .error-banner {
+      background: #fff0f0;
+      border: 1px solid #f5c6c6;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
+      color: #c0392b;
+    }
+
+    label { display: block; font-size: 0.85rem; font-weight: bold; color: #333; margin-bottom: 4px; }
+    input, textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 8px 10px;
+      font-size: 0.92rem;
+      margin-bottom: 14px;
+      outline: none;
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #222;
+    }
+    input:focus, textarea:focus { border-color: #3a7bd5; }
+    textarea { resize: none; height: 90px; }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #3a7bd5;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #2f65b8; }
+
+    .api-link { text-align: center; margin-top: 14px; font-size: 0.82rem; color: #666; }
+    .api-link a { color: #3a7bd5; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>Submit Data</h1>
+  <p class="subtitle">Fill the form. Data saves to data.json and MongoDB Atlas.</p>
+
+  <div class="data-section">
+    <h3>Existing Records (data.json)</h3>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Role</th><th>Department</th></tr>
+      </thead>
+      <tbody id="existing-data">
+        <tr><td colspan="4">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  {% if error %}
+  <div class="error-banner">⚠ {{ error }}</div>
+  {% endif %}
+
+  <form action="/submit" method="POST">
+    <label for="name">Full Name</label>
+    <input type="text" id="name" name="name" placeholder="e.g. Jane Doe" required />
+
+    <label for="email">Email Address</label>
+    <input type="email" id="email" name="email" placeholder="e.g. jane@example.com" required />
+
+    <label for="message">Message</label>
+    <textarea id="message" name="message" placeholder="Write something..." required></textarea>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <p class="api-link">View raw JSON: <a href="/api" target="_blank">/api</a></p>
+</div>
+
+<script>
+  fetch('/api')
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById('existing-data');
+      tbody.innerHTML = data.map(item => `
+        <tr>
+          <td>${item.id !== undefined ? item.id : '-'}</td>
+          <td>${item.name || '-'}</td>
+          <td>${item.role || '-'}</td>
+          <td>${item.department || '-'}</td>
+        </tr>
+      `).join('');
+    })
+    .catch(() => {
+      document.getElementById('existing-data').innerHTML =
+        '<tr><td colspan="4">Could not load records.</td></tr>';
+    });
+</script>
+</body>
+</html>

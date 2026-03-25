@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Success</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .check {
+      font-size: 2.5rem;
+      color: #27ae60;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: 1.3rem; color: #27ae60; margin-bottom: 10px; }
+    p { font-size: 0.9rem; color: #666; margin-bottom: 24px; }
+    a {
+      display: inline-block;
+      padding: 9px 24px;
+      background: #3a7bd5;
+      border-radius: 5px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    a:hover { background: #2f65b8; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="check">✓</div>
+  <h1>Data submitted successfully</h1>
+  <p>Your entry has been saved to data.json and MongoDB Atlas.</p>
+  <a href="/">← Submit another</a>
+</div>
+</body>
+</html>
