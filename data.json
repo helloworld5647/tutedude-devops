@@ -16,6 +16,16 @@
   },
   {
     "id": 4,
+    "name": "Talha-Altair",
+    "role": "MY-Devops_tutor"
+  },
+  {
+    "id": 5,
+    "name": "Tutedude",
+    "role": "Devops_learning_platform"
+  },
+  {
+    "id": 6,
     "name": "Harsh Singh",
     "email": "helloworldfrom5647@gmail.com",
     "message": "Hey i am Harsh Singh , I eager to learn devops and cloud and everything"
