@@ -1,0 +1,309 @@
+AWS DevOps Assignment Report
+
+In this assignment, I successfully completed all three AWS deployment tasks using Flask backend and Express frontend applications from the following GitHub repository:
+
+https://github.com/helloworld5647/tutedude-devops.git
+
+The following report contains all the steps, configurations, and commands that I used during the implementation of the assignment tasks.
+
+GitHub Repository: https://github.com/helloworld5647/tutedude-devops.git
+
+TASK 1 — Deploy Flask Backend + Express Frontend on Single EC2
+STEP 1 — Create EC2 Instance
+Open AWS Console
+Go to EC2
+Launch Instance
+
+Settings:
+
+Name: assignment-ec2
+AMI: Ubuntu Server 24.04 LTS
+Instance Type: t3.micro
+Create/download key pair (Harsh.pem)
+
+Security Group Inbound Rules:
+
+SSH → 22
+HTTP → 80
+Custom TCP → 3000
+Custom TCP → 5000
+STEP 2 — Connect to EC2
+ssh -i Harsh.pem ubuntu@YOUR-PUBLIC-IP
+STEP 3 — Install Packages
+sudo apt update
+sudo apt install git python3 python3-pip python3-venv nodejs npm nginx -y
+STEP 4 — Clone Repository
+git clone https://github.com/helloworld5647/tutedude-devops.git
+STEP 5 — Start Flask Backend
+cd tutedude-devops/backend
+
+
+python3 -m venv venv
+
+
+source venv/bin/activate
+
+
+pip install -r requirements.txt
+
+
+python3 app.py
+
+Expected:
+
+Backend running on port 5000
+STEP 6 — Start Express Frontend
+
+Open another SSH terminal:
+
+cd ~/tutedude-devops/frontend
+
+
+npm install
+
+
+npm start
+
+Expected:
+
+Frontend running on port 3000
+STEP 7 — Access Application
+
+Frontend:
+
+http://YOUR-PUBLIC-IP:3000
+
+Backend:
+
+http://YOUR-PUBLIC-IP:5000
+TASK 2 — Deploy Frontend + Backend on Separate EC2 Instances
+
+Create 2 EC2 Instances:
+
+Backend EC2
+Frontend EC2
+BACKEND INSTANCE SETUP
+Connect
+ssh -i Harsh.pem ubuntu@BACKEND-IP
+Install Packages
+sudo apt update
+sudo apt install git python3 python3-pip python3-venv -y
+Clone Repository
+git clone https://github.com/helloworld5647/tutedude-devops.git
+Run Backend
+cd tutedude-devops/backend
+
+
+python3 -m venv venv
+
+
+source venv/bin/activate
+
+
+pip install -r requirements.txt
+
+
+python3 app.py
+FRONTEND INSTANCE SETUP
+Connect
+ssh -i Harsh.pem ubuntu@FRONTEND-IP
+Install Packages
+sudo apt update
+sudo apt install git nodejs npm -y
+Clone Repository
+git clone https://github.com/helloworld5647/tutedude-devops.git
+Update Backend API URL
+cd tutedude-devops/frontend
+nano server.js
+
+Replace old backend IP with:
+
+http://BACKEND-PUBLIC-IP:5000/submit
+
+Save:
+
+CTRL + X
+Y
+ENTER
+Start Frontend
+npm install
+
+
+npm start
+
+Frontend URL:
+
+http://FRONTEND-IP:3000
+
+IMPORTANT: Whenever backend public IP changes after restart, update backend IP again in server.js.
+
+TASK 3 — Deploy Using Docker + ECR + ECS + VPC
+STEP 1 — Install Docker
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ubuntu
+newgrp docker
+STEP 2 — Create ECR Repositories
+
+Go to:
+
+ECR → Private repositories
+
+Create:
+
+flask-backend
+express-frontend
+STEP 3 — Install AWS CLI
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+
+sudo apt install unzip -y
+
+
+unzip awscliv2.zip
+
+
+sudo ./aws/install
+
+Verify:
+
+aws --version
+STEP 4 — Configure AWS CLI
+aws configure
+
+Enter:
+
+AWS Access Key
+AWS Secret Key
+Region: us-east-1
+Output: json
+STEP 5 — Login to ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 426449772516.dkr.ecr.us-east-1.amazonaws.com
+
+Expected:
+
+Login Succeeded
+STEP 6 — Build Backend Docker Image
+cd ~/tutedude-devops/backend
+
+
+docker build -t flask-backend .
+STEP 7 — Tag Backend Image
+docker tag flask-backend:latest 426449772516.dkr.ecr.us-east-1.amazonaws.com/flask-backend:latest
+STEP 8 — Push Backend Image
+docker push 426449772516.dkr.ecr.us-east-1.amazonaws.com/flask-backend:latest
+STEP 9 — Build Frontend Docker Image
+cd ~/tutedude-devops/frontend
+
+
+docker build -t express-frontend .
+STEP 10 — Tag Frontend Image
+docker tag express-frontend:latest 426449772516.dkr.ecr.us-east-1.amazonaws.com/express-frontend:latest
+STEP 11 — Push Frontend Image
+docker push 426449772516.dkr.ecr.us-east-1.amazonaws.com/express-frontend:latest
+STEP 12 — Create ECS Cluster
+
+Go to:
+
+ECS → Clusters → Create Cluster
+
+Settings:
+
+Name: devops-cluster
+Type: Fargate
+STEP 13 — Create Task Definitions
+Backend Task Definition
+
+Image:
+
+426449772516.dkr.ecr.us-east-1.amazonaws.com/flask-backend:latest
+
+Port:
+
+5000
+Frontend Task Definition
+
+Image:
+
+426449772516.dkr.ecr.us-east-1.amazonaws.com/express-frontend:latest
+
+Port:
+
+3000
+STEP 14 — Create ECS Services
+
+Create:
+
+backend-service
+frontend-service
+
+Networking:
+
+Default VPC
+Default Subnets
+Assign Public IP = ENABLED
+STEP 15 — Security Group Rules
+
+Go to:
+
+EC2 → Security Groups
+
+Add inbound rules:
+
+Type	Port
+Custom TCP	3000
+Custom TCP	5000
+
+Source:
+
+Anywhere IPv4 (0.0.0.0/0)
+STEP 16 — Get Public IP
+
+Go to:
+
+ECS → Cluster → Service → Tasks
+
+Open running task.
+
+Copy:
+
+Public IP
+
+Frontend URL:
+
+http://PUBLIC-IP:3000
+COMMON ERRORS + FIXES
+externally-managed-environment
+
+Use virtual environment:
+
+python3 -m venv venv
+source venv/bin/activate
+docker build requires 1 argument
+
+Correct command:
+
+docker build -t express-frontend .
+ECR 403 Forbidden
+
+Login again:
+
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 426449772516.dkr.ecr.us-east-1.amazonaws.com
+
+ECS Task Stopped
+
+Check:
+
+ECS → Task → Logs
+STOP SERVICES TO AVOID AWS COST
+Stop EC2 Instances
+EC2 → Instances → Stop Instance
+Stop ECS Tasks
+ECS → Services
+Set Desired Tasks = 0
+
+OR
+
+Delete ECS services.
