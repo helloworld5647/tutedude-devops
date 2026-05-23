@@ -1,0 +1,26 @@
+git clone https://github.com/helloworld5647/tutedude-devops.git
+cd tutedude-devops
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl enable docker
+sudo systemctl start docker
+docker --version
+sudo snap install kubectl --classic
+kubectl version --client
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+minikube version
+minikube start --driver=docker
+kubectl get nodes
+eval $(minikube docker-env)
+docker build -t flask-backend ./backend
+docker build -t express-frontend ./frontend
+mkdir k8s
+cd k8s
+nano backend-deployment.yaml
+nano frontend-deployment.yaml
+kubectl apply -f backend-deployment.yaml
+kubectl apply -f frontend-deployment.yaml
+kubectl get pods
+kubectl get svc
+minikube service express-frontend-service
