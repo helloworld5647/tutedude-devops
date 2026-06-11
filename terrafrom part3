@@ -1,0 +1,300 @@
+Part 3: Deploy Flask and Express Using Docker, ECR, ECS Fargate and ALB
+Objective
+
+Deploy the Flask Backend and Express Frontend as Docker containers using:
+
+AWS ECR
+AWS ECS Fargate
+AWS VPC
+AWS Application Load Balancer
+Terraform
+Architecture
+Internet
+    |
+    v
+Application Load Balancer
+    |
+    v
+Frontend ECS Service (Node.js)
+    |
+    v
+Backend ECS Service (Flask)
+    |
+    v
+ECR Images
+Step 1: Verify AWS Configuration
+Check AWS Identity
+aws sts get-caller-identity
+
+Output:
+
+Account: 426449772516
+Region: us-east-1
+Step 2: Create Dockerfiles
+Backend Dockerfile
+
+Location:
+
+backend/dockerfile
+FROM python:3.10
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["python", "app.py"]
+Frontend Dockerfile
+
+Location:
+
+frontend/dockerfile
+FROM node:18
+
+WORKDIR /app
+
+COPY package.json .
+RUN npm install
+
+COPY . .
+
+CMD ["node", "server.js"]
+Step 3: Create ECR Repositories
+
+Terraform created:
+
+tutedude-backend
+tutedude-frontend
+
+Verify:
+
+aws ecr describe-repositories \
+--region us-east-1
+Step 4: Login to ECR
+
+Run from EC2Tfm instance:
+
+aws ecr get-login-password \
+--region us-east-1 \
+| docker login \
+--username AWS \
+--password-stdin \
+426449772516.dkr.ecr.us-east-1.amazonaws.com
+
+Expected:
+
+Login Succeeded
+Step 5: Build and Push Backend Image
+Commands executed on EC2Tfm
+cd ~/tutedude-devops/backend
+
+Build image:
+
+docker build -t tutedude-backend .
+
+Tag image:
+
+docker tag tutedude-backend:latest \
+426449772516.dkr.ecr.us-east-1.amazonaws.com/tutedude-backend:latest
+
+Push image:
+
+docker push \
+426449772516.dkr.ecr.us-east-1.amazonaws.com/tutedude-backend:latest
+Step 6: Build and Push Frontend Image
+Commands executed on EC2Tfm
+cd ~/tutedude-devops/frontend
+
+Build image:
+
+docker build -t tutedude-frontend .
+
+Tag image:
+
+docker tag tutedude-frontend:latest \
+426449772516.dkr.ecr.us-east-1.amazonaws.com/tutedude-frontend:latest
+
+Push image:
+
+docker push \
+426449772516.dkr.ecr.us-east-1.amazonaws.com/tutedude-frontend:latest
+Step 7: Verify Images in ECR
+aws ecr list-images \
+--repository-name tutedude-backend \
+--region us-east-1
+aws ecr list-images \
+--repository-name tutedude-frontend \
+--region us-east-1
+
+Result:
+
+latest image present in both repositories
+Step 8: Create Terraform Infrastructure
+
+Resources created:
+
+VPC
+aws_vpc.main
+
+CIDR:
+
+10.0.0.0/16
+Internet Gateway
+aws_internet_gateway.igw
+Public Subnets
+10.0.1.0/24
+10.0.2.0/24
+
+Terraform Resources:
+
+aws_subnet.public1
+aws_subnet.public2
+Route Tables
+
+Terraform Resources:
+
+aws_route_table.public
+aws_route_table_association.a
+aws_route_table_association.b
+Security Group
+
+Terraform Resource:
+
+aws_security_group.ecs_sg
+
+Allowed Ports:
+
+80
+3000
+5000
+Step 9: Create ECS Cluster
+
+Terraform Resource:
+
+aws_ecs_cluster.main
+
+Cluster Name:
+
+tutedude-cluster
+Step 10: Create ECS Task Definitions
+Backend Task
+
+Container:
+
+backend
+
+Image:
+
+426449772516.dkr.ecr.us-east-1.amazonaws.com/tutedude-backend:latest
+
+Port:
+
+5000
+Frontend Task
+
+Container:
+
+frontend
+
+Image:
+
+426449772516.dkr.ecr.us-east-1.amazonaws.com/tutedude-frontend:latest
+
+Port:
+
+3000
+
+Environment Variable:
+
+BACKEND_URL=http://10.0.1.24:5000
+Step 11: Create ECS Services
+
+Terraform Resources:
+
+aws_ecs_service.backend
+aws_ecs_service.frontend
+
+Launch Type:
+
+FARGATE
+
+Desired Count:
+
+1
+Step 12: Create Application Load Balancer
+
+Terraform Resource:
+
+aws_lb.alb
+
+Listener:
+
+aws_lb_listener.frontend
+
+Target Group:
+
+aws_lb_target_group.frontend
+Step 13: Deploy Infrastructure
+
+Validate:
+
+terraform validate
+
+Plan:
+
+terraform plan
+
+Apply:
+
+terraform apply
+
+Type:
+
+yes
+Step 14: Verify ECS Deployment
+
+List Services:
+
+aws ecs list-services \
+--cluster tutedude-cluster \
+--region us-east-1
+
+Result:
+
+backend-service
+frontend-service
+
+List Tasks:
+
+aws ecs list-tasks \
+--cluster tutedude-cluster \
+--region us-east-1
+
+Result:
+
+2 running Fargate tasks
+
+Describe Services:
+
+aws ecs describe-services \
+--cluster tutedude-cluster \
+--services frontend-service backend-service \
+--region us-east-1
+
+Result:
+
+ACTIVE
+runningCount = 1
+Step 15: Access Application
+
+Terraform Output:
+
+alb_dns_name =
+tutedude-alb-1205294642.us-east-1.elb.amazonaws.com
+
+Open Browser:
+
+http://tutedude-alb-1205294642.us-east-1.elb.amazonaws.com
+Deliverables
