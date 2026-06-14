@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
 
 app.post("/submit", async (req, res) => {
     try {
-        const response = await axios.post("http://backend:5000/submit", req.body);
+        const response = await axios.post("http://localhost:5000/submit", req.body);
         res.render("success", { message: response.data.message });
     } catch (error) {
         res.send("Error submitting data");
